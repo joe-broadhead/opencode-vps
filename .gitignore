@@ -1,0 +1,14 @@
+# secrets
+.env
+*.env
+!.env.example
+!etc/opencode.env.example
+*.pem
+*.key
+password
+!laptop/*.sh
+
+# runtime
+workspace/
+*.log
+.DS_Store

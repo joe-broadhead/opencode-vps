@@ -1,0 +1,6 @@
+external-sources=true
+# Scripts source lib.sh by a relative path. Follow it with -x via external-sources,
+# and do not fail CI when the source path is computed.
+disable=SC1091
+# bash -lc '…$HOME…' is intentional: the inner shell must expand HOME.
+disable=SC2016

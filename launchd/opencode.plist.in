@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>Label</key>
+	<string>com.opencode.vps</string>
+	<key>ProgramArguments</key>
+	<array>
+		<string>@OC_SERVE_SH@</string>
+	</array>
+	<key>EnvironmentVariables</key>
+	<dict>
+		<key>HOME</key>
+		<string>@OC_HOME@</string>
+		<key>OPENCODE_BIN</key>
+		<string>@OC_BIN@</string>
+		<key>OPENCODE_PORT</key>
+		<string>@OC_PORT@</string>
+		<key>PATH</key>
+		<string>@OC_PATH@</string>
+	</dict>
+	<key>WorkingDirectory</key>
+	<string>@OC_HOME@</string>
+	<key>RunAtLoad</key>
+	<true/>
+	<key>KeepAlive</key>
+	<true/>
+	<key>ThrottleInterval</key>
+	<integer>10</integer>
+	<key>StandardOutPath</key>
+	<string>@OC_LOG@</string>
+	<key>StandardErrorPath</key>
+	<string>@OC_LOG@</string>
+</dict>
+</plist>

@@ -1,0 +1,28 @@
+[Unit]
+Description=OpenCode server (tailnet-accessible)
+Documentation=https://opencode.ai/v2/docs/cli/web/
+After=network-online.target tailscaled.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=@OC_USER@
+Group=@OC_GROUP@
+Environment=HOME=@OC_HOME@
+Environment=PATH=@OC_HOME@/.local/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+# OPENCODE_PASSWORD lives here (root:root 0600). Add provider keys if you
+# prefer the environment over `opencode auth login`.
+EnvironmentFile=@OC_ENV_FILE@
+WorkingDirectory=@OC_HOME@
+# --service stays in the foreground (Type=simple) and registers the managed
+# background service, which is what `opencode pair` and the phone QR talk to.
+# The password is synced into the user's service config by 30-install-service.sh.
+# OPENCODE_PASSWORD in the env file remains the source of truth for show/rotate.
+ExecStart=@OC_BIN@ serve --service --hostname 127.0.0.1 --port @OC_PORT@
+Restart=always
+RestartSec=3
+TimeoutStopSec=20
+LimitNOFILE=65535
+
+[Install]
+WantedBy=multi-user.target

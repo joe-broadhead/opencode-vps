@@ -1,0 +1,33 @@
+# Optional container path for hosts without systemd, or when you want the
+# agent filesystem isolated from the host.
+#
+# Caveat: the agent executes INSIDE the container, so every toolchain it needs
+# (node, python, rust, git, ripgrep, ...) must exist in the image or in a
+# custom image derived from it.
+#
+#   OPENCODE_PASSWORD=$(openssl rand -hex 16) docker compose up -d
+#   docker compose logs -f
+#
+# The host port is published on loopback only. The process inside the
+# container listens on 0.0.0.0 so Docker can proxy it; that is not a host bind.
+# Put `tailscale serve` in front. Do not publish 49374 on 0.0.0.0.
+
+services:
+  opencode:
+    image: ${OPENCODE_IMAGE:-ghcr.io/anomalyco/opencode:2.0.0}
+    container_name: opencode
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${OPENCODE_PORT:-49374}:49374"
+    environment:
+      OPENCODE_PASSWORD: ${OPENCODE_PASSWORD:?set OPENCODE_PASSWORD}
+    volumes:
+      - opencode-data:/home/opencode/.local/share/opencode
+      - opencode-config:/home/opencode/.config/opencode
+      - ${OPENCODE_WORKSPACE:-./workspace}:/workspace
+    working_dir: /workspace
+    command: ["serve", "--hostname", "0.0.0.0", "--port", "49374"]
+
+volumes:
+  opencode-data:
+  opencode-config:

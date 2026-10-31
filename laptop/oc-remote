@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+# Run the local TUI against the remote OpenCode server.
+#
+# Connection settings, in resolution order:
+#   1. OPENCODE_VPS_URL + OPENCODE_PASSWORD from the environment
+#   2. ~/.config/opencode-vps/url and a password from the OS keychain
+#      (macOS "security", or the Linux secret service via secret-tool)
+#   3. ~/.config/opencode-vps/password (chmod 600 fallback)
+#
+# Usage mirrors the local CLI:
+#   oc-remote                      # TUI in $PWD
+#   oc-remote ~/code/project       # TUI in another directory
+#   oc-remote run "explain this"   # any opencode subcommand
+set -euo pipefail
+
+CONF="${XDG_CONFIG_HOME:-$HOME/.config}/opencode-vps"
+url="${OPENCODE_VPS_URL:-}"
+pw="${OPENCODE_PASSWORD:-}"
+
+[ -n "$url" ] || { [ -f "$CONF/url" ] && url="$(cat "$CONF/url")"; }
+[ -n "$url" ] || { echo "oc-remote: no server URL (set OPENCODE_VPS_URL or run laptop/install-macos.sh)" >&2; exit 1; }
+
+if [ -z "$pw" ]; then
+	if command -v security >/dev/null 2>&1; then
+		pw="$(security find-generic-password -s opencode-vps -w 2>/dev/null || true)"
+	fi
+	if [ -z "$pw" ] && command -v secret-tool >/dev/null 2>&1; then
+		pw="$(secret-tool lookup service opencode-vps 2>/dev/null || true)"
+	fi
+	if [ -z "$pw" ] && [ -f "$CONF/password" ]; then
+		pw="$(cat "$CONF/password")"
+	fi
+fi
+
+[ -n "$pw" ] || { echo "oc-remote: no password available (see laptop/install-macos.sh)" >&2; exit 1; }
+
+exec env OPENCODE_PASSWORD="$pw" opencode --server "$url" "$@"
